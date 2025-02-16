@@ -8,17 +8,28 @@ import {
   StartCountdownButton,
   TasksInput,
 } from "./styles";
+import { useForm } from "react-hook-form";
 
 const Home = () => {
+  const { register, handleSubmit, watch } = useForm();
+
+  const handleCreateNewCycle = (data: any) => {
+    console.log(data);
+  };
+
+  const task = watch("task");
+  const isSubmitDisabled = !task;
+
   return (
     <HomeContainer>
-      <FormContainer>
+      <FormContainer onSubmit={handleSubmit(handleCreateNewCycle)}>
         <div>
           <label htmlFor="task">Vou trabalhar em</label>
           <TasksInput
             list={"task-suggestions"}
             placeholder="De um nome para o seu projeto"
             id={"task"}
+            {...register("task")}
           />
           <datalist id={"task-suggestions"}>
             <option value={"primeiro"} />
@@ -30,6 +41,7 @@ const Home = () => {
             type="number"
             id="minutesAmount"
             step={5}
+            {...register("minutesAmount", { valueAsNumber: true })}
           />
           <span>minutos</span>
         </div>
@@ -42,7 +54,7 @@ const Home = () => {
           <span>0</span>
         </CountDownContainer>
 
-        <StartCountdownButton disabled type="submit">
+        <StartCountdownButton disabled={isSubmitDisabled} type="submit">
           <Play size={24} /> Começar
         </StartCountdownButton>
       </FormContainer>
