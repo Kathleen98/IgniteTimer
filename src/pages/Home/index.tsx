@@ -36,7 +36,7 @@ const Home = () => {
   });
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null);
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0);
+  const [amountSecondsPassed] = useState(0);
 
   const handleCreateNewCycle = (data: NewCycleFormData) => {
     reset();
