@@ -21,6 +21,7 @@ interface Cycle {
   minutesAmount: number;
   startDate: Date;
   interruptedDate?: Date;
+  finishedDate?: Date
 }
 
 const newCycleFormValidationSchema = zod.object({
@@ -48,16 +49,31 @@ const Home = () => {
     let interval: number;
     if (activeCycle) {
       interval = setInterval(() => {
-        setAmountSecondsPassed(
-          differenceInSeconds(new Date(), activeCycle.startDate),
-        );
+        const secondsDifference = differenceInSeconds(new Date(), activeCycle.startDate)
+
+        if(secondsDifference >= totalSeconds){
+          setCycles((state) =>
+            state.map((cycle : Cycle) => {
+              if (cycle.id === activeCycleId) {
+                return { ...cycle, finishedDate: new Date() };
+              } else {
+                return cycle;
+              }
+            }),
+          );
+          setAmountSecondsPassed(totalSeconds)
+          clearInterval(interval)
+        }else{
+          setAmountSecondsPassed(secondsDifference);
+        }
+       
       }, 1000);
     }
 
     return () => {
       clearInterval(interval);
     };
-  }, [activeCycle]);
+  }, [activeCycle, totalSeconds, activeCycleId]);
 
   const handleCreateNewCycle = (data: NewCycleFormData) => {
     reset();
@@ -93,8 +109,8 @@ const Home = () => {
   }, [minutes, seconds, activeCycle]);
 
   const handleInterruptCycle: () => void = () => {
-    setCycles(
-      cycles.map((cycle) => {
+    setCycles((state) =>
+      state.map((cycle : Cycle) => {
         if (cycle.id === activeCycleId) {
           return { ...cycle, interruptedDate: new Date() };
         } else {
@@ -102,6 +118,7 @@ const Home = () => {
         }
       }),
     );
+
 
     setActiveCycleId(null);
   };
@@ -128,7 +145,7 @@ const Home = () => {
             type="number"
             id="minutesAmount"
             step={5}
-            min={5}
+            min={1}
             max={60}
             disabled={!!activeCycle}
             {...register("minutesAmount", { valueAsNumber: true })}
